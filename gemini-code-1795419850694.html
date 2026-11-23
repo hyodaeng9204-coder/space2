@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>세 자매의 30초 다이어트 서바이벌</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background: linear-gradient(135deg, #fff5f7 0%, #f0f7ff 100%);
+      color: #2d3748;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      border: 2px solid #edf2f7;
+    }
+
+    .header {
+      background: linear-gradient(90deg, #ff7eb3 0%, #ff758c 100%);
+      color: white;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.22);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #68d391;
+      box-shadow: 0 0 6px #68d391;
+    }
+
+    /* 캐릭터 선택 화면 */
+    .select-screen {
+      padding: 20px 16px 24px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #4a5568;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .char-card {
+      background: #f8fafc;
+      border: 2.5px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 12px 6px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .char-card:hover {
+      transform: translateY(-2px);
+      border-color: #feb2b2;
+    }
+
+    .char-card.selected {
+      background: #fff5f7;
+      border-color: #ff758c;
+      box-shadow: 0 6px 15px rgba(255, 117, 140, 0.2);
+    }
+
+    .char-card canvas {
+      display: block;
+      margin: 0 auto 6px;
+    }
+
+    .char-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1a202c;
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255, 117, 140, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    .start-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* 실시간 랭킹 보드 */
+    .ranking-box {
+      margin-top: 20px;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 14px;
+      border: 1.5px solid #e2e8f0;
+    }
+
+    .ranking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .ranking-header h2 {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #2d3748;
+    }
+
+    .refresh-btn {
+      background: #edf2f7;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 9px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #4a5568;
+      cursor: pointer;
+    }
+
+    .rank-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rank-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #edf2f7;
+      transition: all 0.3s ease;
+    }
+
+    .rank-item.updated {
+      border-color: #ff758c;
+      background: #fff5f7;
+      transform: scale(1.01);
+    }
+
+    .rank-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rank-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .rank-1 { background: #fefcbf; color: #b7791f; }
+    .rank-2 { background: #edf2f7; color: #4a5568; }
+    .rank-3 { background: #feebc8; color: #9c4221; }
+
+    .rank-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #1a202c;
+    }
+
+    .rank-status {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .status-alive { background: #c6f6d5; color: #22543d; }
+    .status-pig { background: #fed7e2; color: #97266d; }
+    .status-wait { background: #edf2f7; color: #718096; }
+
+    .rank-score {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #ff758c;
+    }
+
+    /* 게임 화면 */
+    .game-screen {
+      display: none;
+      position: relative;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1.5px solid #edf2f7;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .hud-lives {
+      letter-spacing: 2px;
+      font-size: 1rem;
+    }
+
+    .hud-timer {
+      color: #e53e3e;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hud-score {
+      color: #2f855a;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 460px;
+      background: linear-gradient(180deg, #ebf8ff 0%, #fefcbf 100%);
+      touch-action: none;
+    }
+
+    .control-hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #718096;
+      padding: 8px;
+      background: #f8fafc;
+    }
+
+    /* 결과 오버레이 */
+    .result-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 32, 44, 0.78);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 10;
+    }
+
+    .result-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 340px;
+      border-radius: 22px;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    .result-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .result-sub {
+      font-size: 0.88rem;
+      color: #4a5568;
+      margin-bottom: 14px;
+    }
+
+    .result-score-box {
+      background: #fff5f7;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #d53f8c;
+    }
+
+    .home-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      background: #2d3748;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <h1>🥗 세 자매 30초 다이어트 서바이벌</h1>
+      <div class="sync-badge">
+        <span class="sync-dot"></span>
+        <span id="syncText">실시간 클라우드 랭킹 연동됨</span>
+      </div>
+    </div>
+
+    <!-- 선택 & 실시간 랭킹 화면 -->
+    <div class="select-screen" id="selectScreen">
+      <div class="section-title">플레이할 자매를 선택하세요</div>
+      <div class="char-grid">
+        <div class="char-card selected" data-char="hyebin" onclick="selectChar('hyebin')">
+          <canvas id="preview-hyebin" width="90" height="115"></canvas>
+          <div class="char-name">노혜빈</div>
+        </div>
+        <div class="char-card" data-char="hyojeong" onclick="selectChar('hyojeong')">
+          <canvas id="preview-hyojeong" width="90" height="115"></canvas>
+          <div class="char-name">노효정</div>
+        </div>
+        <div class="char-card" data-char="noah" onclick="selectChar('noah')">
+          <canvas id="preview-noah" width="90" height="115"></canvas>
+          <div class="char-name">노아</div>
+        </div>
+      </div>
+
+      <button class="start-btn" onclick="startGame()">30초 도전 시작하기!</button>
+
+      <div class="ranking-box">
+        <div class="ranking-header">
+          <h2>🏆 실시간 자매 순위 (최신 기록 반영)</h2>
+          <button class="refresh-btn" onclick="fetchRanking(true)">새로고침</button>
+        </div>
+        <div class="rank-list" id="rankList"></div>
+      </div>
+    </div>
+
+    <!-- 게임 플레이 화면 -->
+    <div class="game-screen" id="gameScreen">
+      <div class="hud">
+        <div class="hud-lives" id="hudLives">❤️❤️❤️</div>
+        <div class="hud-timer" id="hudTimer">⏱ 30.0초</div>
+        <div class="hud-score" id="hudScore">🥗 0개</div>
+      </div>
+      <canvas id="gameCanvas" width="440" height="460"></canvas>
+      <div class="control-hint">화면 좌우 드래그 또는 ← → 방향키로 이동하세요</div>
+
+      <div class="result-overlay" id="resultOverlay">
+        <div class="result-card">
+          <canvas id="resultCanvas" width="110" height="110" style="margin: 0 auto 8px; display: block;"></canvas>
+          <div class="result-title" id="resultTitle">성공!</div>
+          <div class="result-sub" id="resultSub">30초 동안 끝까지 버텼어요!</div>
+          <div class="result-score-box" id="resultScoreBox">건강식 0개 획득</div>
+          <button class="home-btn" onclick="returnToMenu()">실시간 랭킹 확인하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DB_URL = "https://game-6ea38-default-rtdb.firebaseio.com/sisters_ranking.json";
+
+    const SISTERS = {
+      hyebin: { id: "hyebin", name: "노혜빈" },
+      hyojeong: { id: "hyojeong", name: "노효정" },
+      noah: { id: "noah", name: "노아" }
+    };
+
+    let selectedCharId = "hyebin";
+    let lastUpdatedId = null;
+    let rankingData = {
+      hyebin: { name: "노혜빈", score: 0, status: "wait", updatedAt: 0 },
+      hyojeong: { name: "노효정", score: 0, status: "wait", updatedAt: 0 },
+      noah: { name: "노아", score: 0, status: "wait", updatedAt: 0 }
+    };
+
+    // 캐릭터 일러스트 그리기 (세 자매 개성 반영)
+    function drawSister(ctx, charId, cx, cy, scale = 1, isPig = false) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale, scale);
+
+      if (isPig) {
+        // 돼지 변신 그래픽
+        ctx.fillStyle = "#ff9ebb";
+        ctx.beginPath();
+        ctx.ellipse(0, 12, 26, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 귀
+        ctx.fillStyle = "#ff759f";
+        ctx.beginPath();
+        ctx.ellipse(-16, -18, 7, 10, -0.4, 0, Math.PI * 2);
+        ctx.ellipse(16, -18, 7, 10, 0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 얼굴
+        ctx.fillStyle = "#ffb3c6";
+        ctx.beginPath();
+        ctx.arc(0, -6, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 눈
+        ctx.fillStyle = "#2d3748";
+        ctx.beginPath();
+        ctx.arc(-7, -9, 2.5, 0, Math.PI * 2);
+        ctx.arc(7, -9, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 돼지 코
+        ctx.fillStyle = "#ff759f";
+        ctx.beginPath();
+        ctx.ellipse(0, -1, 9, 6.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#97266d";
+        ctx.beginPath();
+        ctx.arc(-3.2, -1, 1.8, 0, Math.PI * 2);
+        ctx.arc(3.2, -1, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+        return;
+      }
+
+      // 자매별 체형 및 비율 설정
+      let heightScale = 1;
+      let bodyWidth = 14;
+      let faceRx = 13.5;
+
+      if (charId === "hyebin") {
+        // 30대 초반, 아담한 키, 보통 슬림 체형
+        heightScale = 0.94;
+        bodyWidth = 13;
+        faceRx = 13;
+      } else if (charId === "hyojeong") {
+        // 가장 큰 키, 약간 통통한 귀여운 체형
+        heightScale = 1.07;
+        bodyWidth = 18.5;
+        faceRx = 15.5;
+      } else if (charId === "noah") {
+        // 중간보다 약간 작은 키, 가장 마른 슬림 체형
+        heightScale = 0.96;
+        bodyWidth = 10.5;
+        faceRx = 12;
+      }
+
+      ctx.scale(1, heightScale);
+
+      // 뒷머리 레이어
+      ctx.fillStyle = "#2b211e";
+      if (charId === "hyebin") {
+        // 자연스러운 S컬 히피펌 뒷볼륨
+        const waves = [-16, -12, -6, 0, 6, 12, 16];
+        waves.forEach((wx, idx) => {
+          ctx.beginPath();
+          ctx.arc(wx, -4 + (idx % 2) * 4, 8, 0, Math.PI * 2);
+          ctx.arc(wx * 1.15, 8 + (idx % 2) * 3, 7.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      } else if (charId === "hyojeong") {
+        // 쇄골 아래 가슴 위 미디엄 롱 기장
+        ctx.beginPath();
+        ctx.roundRect(-17, -18, 34, 34, 14);
+        ctx.fill();
+      } else if (charId === "noah") {
+        // 단정한 중단발
+        ctx.beginPath();
+        ctx.roundRect(-15, -18, 30, 25, 12);
+        ctx.fill();
+      }
+
+      // 다리
+      ctx.fillStyle = "#ffe0bd";
+      ctx.fillRect(-7, 22, 5, 16);
+      ctx.fillRect(2, 22, 5, 16);
+
+      // 의상
+      if (charId === "hyebin") {
+        // 민트 캐주얼 크롭 맨투맨 + 데님
+        ctx.fillStyle = "#4fd1c5";
+        ctx.beginPath();
+        ctx.roundRect(-bodyWidth, 4, bodyWidth * 2, 15, 6);
+        ctx.fill();
+        ctx.fillStyle = "#3182ce";
+        ctx.fillRect(-bodyWidth + 2, 18, (bodyWidth - 2) * 2, 8);
+      } else if (charId === "hyojeong") {
+        // 핑크 트레이닝 집업 (통통한 핏)
+        ctx.fillStyle = "#f687b3";
+        ctx.beginPath();
+        ctx.roundRect(-bodyWidth, 4, bodyWidth * 2, 21, 9);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, 5);
+        ctx.lineTo(0, 24);
+        ctx.stroke();
+      } else if (charId === "noah") {
+        // 단정한 남색 교복 + 리본
+        ctx.fillStyle = "#2c5282";
+        ctx.beginPath();
+        ctx.roundRect(-bodyWidth, 4, bodyWidth * 2, 16, 5);
+        ctx.fill();
+        // 교복 치마
+        ctx.fillStyle = "#1a365d";
+        ctx.beginPath();
+        ctx.moveTo(-bodyWidth, 19);
+        ctx.lineTo(bodyWidth, 19);
+        ctx.lineTo(bodyWidth + 3, 27);
+        ctx.lineTo(-bodyWidth - 3, 27);
+        ctx.closePath();
+        ctx.fill();
+        // 빨간 리본
+        ctx.fillStyle = "#e53e3e";
+        ctx.beginPath();
+        ctx.arc(0, 7, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 얼굴 (세 자매 닮은 따뜻한 피부톤)
+      ctx.fillStyle = "#ffe5cc";
+      ctx.beginPath();
+      ctx.ellipse(0, -9, faceRx, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 볼터치
+      ctx.fillStyle = "rgba(255, 117, 140, 0.35)";
+      ctx.beginPath();
+      ctx.arc(-faceRx * 0.55, -6, 3, 0, Math.PI * 2);
+      ctx.arc(faceRx * 0.55, -6, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 닮은 이목구비 (눈 & 미소)
+      ctx.fillStyle = "#2d3748";
+      ctx.beginPath();
+      ctx.arc(-5, -10, 2, 0, Math.PI * 2);
+      ctx.arc(5, -10, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#c53030";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, -6, 3.2, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.stroke();
+
+      // 앞머리
+      ctx.fillStyle = "#2b211e";
+      ctx.beginPath();
+      ctx.arc(0, -14, faceRx + 0.5, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // 안경 (노혜빈: 세련된 금테, 노아: 학생 뿔테, 노효정: 없음)
+      if (charId === "hyebin") {
+        ctx.strokeStyle = "#d69e2e";
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        ctx.arc(-5.2, -10, 4.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(5.2, -10, 4.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-1, -10);
+        ctx.lineTo(1, -10);
+        ctx.stroke();
+      } else if (charId === "noah") {
+        ctx.strokeStyle = "#4a5568";
+        ctx.lineWidth = 1.4;
+        ctx.strokeRect(-9, -13.5, 7.5, 6.5);
+        ctx.strokeRect(1.5, -13.5, 7.5, 6.5);
+        ctx.beginPath();
+        ctx.moveTo(-1.5, -10.5);
+        ctx.lineTo(1.5, -10.5);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // 선택 화면 초상화 렌더링
+    function renderPreviews() {
+      ["hyebin", "hyojeong", "noah"].forEach(id => {
+        const c = document.getElementById(`preview-${id}`);
+        const ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+        drawSister(ctx, id, 45, 58, 1.45, false);
+      });
+    }
+
+    function selectChar(id) {
+      selectedCharId = id;
+      document.querySelectorAll(".char-card").forEach(card => {
+        card.classList.toggle("selected", card.dataset.char === id);
+      });
+    }
+
+    // 실시간 Firebase 랭킹 조회 및 렌더링
+    async function fetchRanking(manual = false) {
+      const syncText = document.getElementById("syncText");
+      if (manual) syncText.textContent = "랭킹 동기화 중...";
+
+      try {
+        const res = await fetch(DB_URL + "?t=" + Date.now());
+        const data = await res.json();
+        if (data) {
+          ["hyebin", "hyojeong", "noah"].forEach(id => {
+            if (data[id]) {
+              rankingData[id] = {
+                name: SISTERS[id].name,
+                score: Number(data[id].score) || 0,
+                status: data[id].status || "wait",
+                updatedAt: data[id].updatedAt || 0
+              };
+            }
+          });
+        }
+        syncText.textContent = "실시간 클라우드 랭킹 연동됨";
+      } catch (e) {
+        syncText.textContent = "오프라인 모드 (연결 확인 필요)";
+      }
+      renderRankingBoard();
+    }
+
+    // 최신 점수 서버에 덮어쓰기 (이전 기록보다 많든 적든 최신 값 반영)
+    async function saveLatestScore(charId, score, isPig) {
+      const payload = {
+        name: SISTERS[charId].name,
+        score: score,
+        status: isPig ? "pig" : "alive",
+        updatedAt: Date.now()
+      };
+
+      rankingData[charId] = payload;
+      lastUpdatedId = charId;
+      renderRankingBoard();
+
+      try {
+        await fetch(`https://game-6ea38-default-rtdb.firebaseio.com/sisters_ranking/${charId}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        await fetchRanking(false);
+      } catch (e) {
+        console.error("랭킹 저장 실패:", e);
+      }
+    }
+
+    function renderRankingBoard() {
+      const listEl = document.getElementById("rankList");
+      const sorted = Object.entries(rankingData)
+        .map(([id, info]) => ({ id, ...info }))
+        .sort((a, b) => {
+          // 플레이한 기록이 있는 캐릭터 우선, 그다음 최신 획득 개수 순
+          if (a.status === "wait" && b.status !== "wait") return 1;
+          if (b.status === "wait" && a.status !== "wait") return -1;
+          if (b.score !== a.score) return b.score - a.score;
+          return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+
+      listEl.innerHTML = sorted.map((item, idx) => {
+        const rankNum = idx + 1;
+        let statusHtml = `<span class="rank-status status-wait">대기중</span>`;
+        if (item.status === "alive") {
+          statusHtml = `<span class="rank-status status-alive">✨ 생존성공</span>`;
+        } else if (item.status === "pig") {
+          statusHtml = `<span class="rank-status status-pig">🐷 돼지변신</span>`;
+        }
+
+        const isUpdated = item.id === lastUpdatedId ? "updated" : "";
+
+        return `
+          <div class="rank-item ${isUpdated}">
+            <div class="rank-left">
+              <div class="rank-badge rank-${rankNum}">${rankNum}</div>
+              <div>
+                <span class="rank-name">${item.name}</span>
+                ${statusHtml}
+              </div>
+            </div>
+            <div class="rank-score">${item.score}개</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // 게임 엔진 변수
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const HEALTHY_ITEMS = ["🥗", "🥦", "🍎", "🥑", "🍗", "🥒"];
+    const JUNK_ITEMS = ["🍔", "🍕", "🍜", "🍩", "🍟", "🍰"];
+
+    let gameActive = false;
+    let score = 0;
+    let lives = 3;
+    let timeLeft = 30.0;
+    let playerX = 220;
+    let items = [];
+    let particles = [];
+    let spawnTimer = 0;
+    let lastTimestamp = 0;
+    let keys = {};
+
+    // 효과음 (Web Audio API)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration) {
+      try {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playOinkSound() {
+      playTone(190, "sawtooth", 0.16);
+      setTimeout(() => playTone(150, "sawtooth", 0.25), 140);
+    }
+
+    function startGame() {
+      document.getElementById("selectScreen").style.display = "none";
+      document.getElementById("gameScreen").style.display = "block";
+      document.getElementById("resultOverlay").style.display = "none";
+
+      score = 0;
+      lives = 3;
+      timeLeft = 30.0;
+      playerX = canvas.width / 2;
+      items = [];
+      particles = [];
+      spawnTimer = 0;
+      gameActive = true;
+      lastTimestamp = performance.now();
+
+      updateHud();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function updateHud() {
+      document.getElementById("hudLives").textContent = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+      document.getElementById("hudTimer").textContent = `⏱ ${Math.max(0, timeLeft).toFixed(1)}초`;
+      document.getElementById("hudScore").textContent = `🥗 ${score}개`;
+    }
+
+    function spawnItem() {
+      const isJunk = Math.random() < 0.42;
+      const pool = isJunk ? JUNK_ITEMS : HEALTHY_ITEMS;
+      const emoji = pool[Math.floor(Math.random() * pool.length)];
+      items.push({
+        x: 30 + Math.random() * (canvas.width - 60),
+        y: -25,
+        speed: 190 + Math.random() * 140 + (30 - timeLeft) * 4,
+        emoji,
+        isJunk
+      });
+    }
+
+    function addPopText(x, y, text, color) {
+      particles.push({ x, y, text, color, life: 0.7 });
+    }
+
+    function gameLoop(timestamp) {
+      if (!gameActive) return;
+
+      const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+      lastTimestamp = timestamp;
+
+      timeLeft -= dt;
+      if (timeLeft <= 0) {
+        timeLeft = 0;
+        updateHud();
+        endGame(false);
+        return;
+      }
+
+      // 키보드 이동
+      const moveSpeed = 340;
+      if (keys["ArrowLeft"] || keys["a"]) playerX -= moveSpeed * dt;
+      if (keys["ArrowRight"] || keys["d"]) playerX += moveSpeed * dt;
+      playerX = Math.max(32, Math.min(canvas.width - 32, playerX));
+
+      // 음식 생성
+      spawnTimer += dt;
+      if (spawnTimer >= 0.42) {
+        spawnTimer = 0;
+        spawnItem();
+      }
+
+      // 배경 클리어
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 바닥 라인
+      ctx.fillStyle = "#c6f6d5";
+      ctx.fillRect(0, canvas.height - 34, canvas.width, 34);
+
+      // 플레이어 그리기
+      const playerY = canvas.height - 76;
+      drawSister(ctx, selectedCharId, playerX, playerY, 1.35, false);
+
+      // 아이템 업데이트 및 충돌 판정
+      ctx.font = "30px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        it.y += it.speed * dt;
+        ctx.fillText(it.emoji, it.x, it.y);
+
+        const dist = Math.hypot(it.x - playerX, it.y - (playerY - 6));
+        if (dist < 36) {
+          items.splice(i, 1);
+          if (it.isJunk) {
+            lives--;
+            playTone(160, "square", 0.15);
+            addPopText(playerX, playerY - 40, "-1 ❤️", "#e53e3e");
+            if (lives <= 0) {
+              lives = 0;
+              updateHud();
+              endGame(true);
+              return;
+            }
+          } else {
+            score++;
+            playTone(580, "sine", 0.1);
+            addPopText(playerX, playerY - 40, "+1 🥗", "#2f855a");
+          }
+          continue;
+        }
+
+        if (it.y > canvas.height + 30) {
+          items.splice(i, 1);
+        }
+      }
+
+      // 이펙트 텍스트
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.y -= 45 * dt;
+        p.life -= dt;
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x, p.y);
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      updateHud();
+      requestAnimationFrame(gameLoop);
+    }
+
+    async function endGame(becamePig) {
+      gameActive = false;
+
+      const overlay = document.getElementById("resultOverlay");
+      const rCanvas = document.getElementById("resultCanvas");
+      const rCtx = rCanvas.getContext("2d");
+      const rTitle = document.getElementById("resultTitle");
+      const rSub = document.getElementById("resultSub");
+      const rScore = document.getElementById("resultScoreBox");
+
+      rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+
+      if (becamePig) {
+        playOinkSound();
+        drawSister(rCtx, selectedCharId, 55, 58, 1.5, true);
+        rTitle.textContent = "🐷 뿅! 돼지로 변신했어요!";
+        rTitle.style.color = "#d53f8c";
+        rSub.textContent = `${SISTERS[selectedCharId].name}님이 불량식품 3번을 먹어버렸어요!`;
+      } else {
+        playTone(660, "triangle", 0.25);
+        drawSister(rCtx, selectedCharId, 55, 58, 1.45, false);
+        rTitle.textContent = "✨ 30초 다이어트 성공!";
+        rTitle.style.color = "#2f855a";
+        rSub.textContent = `${SISTERS[selectedCharId].name}님이 끝까지 건강식을 사수했어요!`;
+      }
+
+      rScore.textContent = `최종 획득: 건강식 ${score}개`;
+      overlay.style.display = "flex";
+
+      // 클라우드 DB에 최신 점수로 즉시 덮어쓰기
+      await saveLatestScore(selectedCharId, score, becamePig);
+    }
+
+    function returnToMenu() {
+      document.getElementById("gameScreen").style.display = "none";
+      document.getElementById("selectScreen").style.display = "block";
+      fetchRanking(true);
+    }
+
+    // 입력 이벤트 (키보드 & 터치/마우스 드래그)
+    window.addEventListener("keydown", e => { keys[e.key] = true; });
+    window.addEventListener("keyup", e => { keys[e.key] = false; });
+
+    function handlePointerMove(clientX) {
+      if (!gameActive) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      playerX = (clientX - rect.left) * scaleX;
+      playerX = Math.max(32, Math.min(canvas.width - 32, playerX));
+    }
+
+    canvas.addEventListener("mousemove", e => {
+      if (e.buttons === 1) handlePointerMove(e.clientX);
+    });
+    canvas.addEventListener("touchmove", e => {
+      e.preventDefault();
+      if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX);
+    }, { passive: false });
+    canvas.addEventListener("touchstart", e => {
+      if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX);
+    }, { passive: true });
+
+    // 초기 실행 및 5초마다 실시간 랭킹 자동 동기화
+    renderPreviews();
+    fetchRanking(false);
+    setInterval(() => {
+      if (!gameActive) fetchRanking(false);
+    }, 5000);
+  </script>
+</body>
+</html>
